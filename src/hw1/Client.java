@@ -2,10 +2,6 @@ package hw1;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.security.Key;
-import java.util.Arrays;
 
 public class Client extends JFrame {
     private static final int WIDTH = 300;
@@ -34,16 +30,16 @@ public class Client extends JFrame {
         btnSend = new JButton("send");
         message = new JTextField();
 
-        btnLogin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String login = nickname.getText();
-                String pass = password.getText();
-                if (server.checkAuthentication(login,pass)){
-                    new ChatClientWindow(Client.this);
-                }
-                Client.this.setName(login);
+        btnLogin.addActionListener(e -> {
+            String login = nickname.getText();
+            String pass = password.getText();
+            if (server.checkAuthentication(login,pass)){
+                new ChatClientWindow(Client.this);
             }
+            Client.this.setName(login);
+            server.getDafaultList().addElement(login + " присоединился к чату!");
+            server.getListClientsOnline().add(this);
+
         });
 
 

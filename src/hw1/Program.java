@@ -6,8 +6,9 @@ public class Program {
         server.getDbClients().put("Batman", "Alfred");
         server.getDbClients().put("Joker", "chaos");
         server.getDbClients().put("1", "1");
+        server.getDbClients().put("2", "2");
 
         Client client1 = new Client(server);
-//        Client client2 = new Client(server);
+        Client client2 = new Client(server);
     }
 }

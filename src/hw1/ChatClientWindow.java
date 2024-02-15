@@ -1,9 +1,14 @@
 package hw1;
 
 import javax.swing.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatClientWindow extends JFrame {
     private static final int WIDTH = 300;
@@ -39,18 +44,50 @@ public class ChatClientWindow extends JFrame {
         sendPanel.add(message);
 
         btnSend.addActionListener(e -> {
-            writeToChat();
+            if (client.getServer().isRunning()){
+                writeToChat();
+            } else {
+                dafaultList.addElement(PROBLEM_MSG);
+            }
         });
 
-        add(sendPanel,BorderLayout.SOUTH);
+        btnSend.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER){
+                    if (client.getServer().isRunning()){
+                        writeToChat();
+                    } else {
+                        dafaultList.addElement(PROBLEM_MSG);
+                    }
+                }
+            }
+        });
+
+        add(sendPanel, BorderLayout.SOUTH);
         add(chat);
         setVisible(true);
+
+        client.getServer().getDafaultList().addListDataListener(new ListDataListener() {
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                dafaultList.addElement(
+                        client.getServer().getDafaultList().lastElement());
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {
+            }
+        });
     }
 
     private void writeToChat(){
         String msg = client.getName() + ": " + message.getText();
-        client.getServer().getHistoryChat().add(msg);
-        dafaultList.addElement(msg);
+        client.getServer().getDafaultList().addElement(msg);
     }
-
 }
