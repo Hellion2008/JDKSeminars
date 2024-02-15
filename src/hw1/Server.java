@@ -4,6 +4,12 @@ import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +23,8 @@ public class Server extends JFrame {
     private static boolean isRunning = false;
 
     private Map<String, String> dbClients;
+
+    private File log;
     private DefaultListModel dafaultList;
     private final JList<String> historyLog;
     JButton btnStart, btnStop;
@@ -47,6 +55,46 @@ public class Server extends JFrame {
         });
         beginPanel.add(btnStart);
         beginPanel.add(btnStop);
+
+        dafaultList.addListDataListener(new ListDataListener() {
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                String str = ".\\log.txt";
+                if (Files.exists(Path.of(str))){
+                    try {
+                        Files.writeString(Paths.get(str),
+                                new StringBuilder()
+                                        .append(dafaultList.lastElement().toString())
+                                        .append("\n"),
+                                StandardOpenOption.APPEND);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                } else {
+                    log = new File(str);
+                    try {
+                        Files.createFile(Path.of(str));
+                        Files.writeString(Paths.get(str),
+                                new StringBuilder()
+                                .append(dafaultList.lastElement().toString())
+                                .append("\n"),
+                                StandardOpenOption.APPEND);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {
+
+            }
+        });
 
         add(beginPanel,BorderLayout.SOUTH);
         setVisible(true);
