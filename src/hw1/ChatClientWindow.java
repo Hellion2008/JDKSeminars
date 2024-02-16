@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class ChatClientWindow extends JFrame {
     private DefaultListModel dafaultList;
 
 
-    ChatClientWindow(Client client){
+    ChatClientWindow(Client client) throws IOException {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(WIDTH,HEIGHT);
         setLocationRelativeTo(client);
@@ -36,7 +38,19 @@ public class ChatClientWindow extends JFrame {
         message = new JTextField();
 
         dafaultList = new DefaultListModel<>();
+        try{
+            this.loadFromServerLog();
+        } catch (IOException e){
+            System.out.println(e.getMessage());
+        }
+
+
         chat = new JList<>(dafaultList);
+        chat.setLayoutOrientation(JList.VERTICAL);
+        chat.setVisibleRowCount(0);
+
+        JScrollPane chatScroll = new JScrollPane(chat);
+        chatScroll.setPreferredSize(new Dimension(100, 100));
 
         JPanel sendPanel = new JPanel(new BorderLayout());
 
@@ -65,7 +79,8 @@ public class ChatClientWindow extends JFrame {
         });
 
         add(sendPanel, BorderLayout.SOUTH);
-        add(chat);
+        add(chatScroll);
+//        add(chat);
         setVisible(true);
 
         client.getServer().getDafaultList().addListDataListener(new ListDataListener() {
@@ -84,6 +99,15 @@ public class ChatClientWindow extends JFrame {
             public void contentsChanged(ListDataEvent e) {
             }
         });
+    }
+
+    private void loadFromServerLog() throws IOException {
+        if (Files.exists(client.getServer().getLog())){
+            List<String> tempList = Files.readAllLines(client.getServer().getLog());
+            for (String line: tempList){
+                dafaultList.addElement(line);
+            }
+        }
     }
 
     private void writeToChat(){

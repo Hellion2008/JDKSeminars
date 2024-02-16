@@ -24,12 +24,14 @@ public class Server extends JFrame {
 
     private Map<String, String> dbClients;
 
-    private File log;
+    private Path log = Path.of(".\\log.txt");
     private DefaultListModel dafaultList;
     private final JList<String> historyLog;
     JButton btnStart, btnStop;
 
     private final List<Client> listClientsOnline;
+
+    private JScrollPane historyLogScroll;
     Server (){
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(WIDTH,HEIGHT);
@@ -43,6 +45,11 @@ public class Server extends JFrame {
 
         dafaultList = new DefaultListModel<>();
         historyLog = new JList<>(dafaultList);
+        historyLog.setLayoutOrientation(JList.VERTICAL);
+        historyLog.setVisibleRowCount(0);
+
+        historyLogScroll = new JScrollPane(historyLog);
+        historyLogScroll.setPreferredSize(new Dimension(100, 100));
 
         JPanel beginPanel = new JPanel(new GridLayout(1,2));
 
@@ -71,7 +78,6 @@ public class Server extends JFrame {
                         throw new RuntimeException(ex);
                     }
                 } else {
-                    log = new File(str);
                     try {
                         Files.createFile(Path.of(str));
                         Files.writeString(Paths.get(str),
@@ -97,7 +103,9 @@ public class Server extends JFrame {
         });
 
         add(beginPanel,BorderLayout.SOUTH);
+        add(historyLogScroll);
         setVisible(true);
+        historyLog.setVisible(false);
 
     }
 
@@ -127,7 +135,7 @@ public class Server extends JFrame {
         dafaultList.clear();
         isRunning = true;
 
-        add(historyLog);
+        historyLog.setVisible(true);
         dafaultList.addElement("Сервер запущен!");
     }
 
@@ -137,5 +145,9 @@ public class Server extends JFrame {
 
     public List<Client> getListClientsOnline() {
         return listClientsOnline;
+    }
+
+    public Path getLog() {
+        return log;
     }
 }

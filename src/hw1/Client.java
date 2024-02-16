@@ -2,12 +2,15 @@ package hw1;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class Client extends JFrame {
     private static final int WIDTH = 300;
     private static final int HEIGHT = 400;
     private static final String DEFAULT_IP = "127.0.0.1";
     private static final String SOCKET = "8189";
+    private final static String PROBLEM_MSG = "Подключение не удалось";
+    private final static String GREETING_MSG = "Вы успешно подключились!";
     private Server server;
     private JButton btnSend, btnLogin;
     private JTextField ip, socket, nickname, message;
@@ -34,11 +37,20 @@ public class Client extends JFrame {
             String login = nickname.getText();
             String pass = password.getText();
             if (server.checkAuthentication(login,pass)){
-                new ChatClientWindow(Client.this);
+                try {
+                    new ChatClientWindow(Client.this);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
             Client.this.setName(login);
-            server.getDafaultList().addElement(login + " присоединился к чату!");
-            server.getListClientsOnline().add(this);
+            if (server.isRunning()){
+                server.getDafaultList().addElement(login + " присоединился к чату!");
+                server.getListClientsOnline().add(this);
+            } else{
+                server.getDafaultList().addElement(PROBLEM_MSG);
+            }
+
 
         });
 
